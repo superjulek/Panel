@@ -3,6 +3,7 @@
 *.bin
 *.list
 *.d
+.settings
 
 # Object files
 *.o
