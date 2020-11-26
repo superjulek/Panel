@@ -1,4 +1,7 @@
-# Prerequisites
+# Others
+*.su
+*.bin
+*.list
 *.d
 
 # Object files
@@ -6,15 +9,6 @@
 *.ko
 *.obj
 *.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
 
 # Libraries
 *.lib
@@ -36,17 +30,11 @@
 *.x86_64
 *.hex
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+# Misc
+*.map
+*.m
+*.png
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# Include makefiles
+!Makefile
+*~
