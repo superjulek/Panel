@@ -6,5 +6,3 @@
  */
 
 #include "kontrolka.h"
-
-test = 100;

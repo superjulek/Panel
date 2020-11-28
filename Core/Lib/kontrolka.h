@@ -8,6 +8,4 @@
 #ifndef LIB_KONTROLKA_H_
 #define LIB_KONTROLKA_H_
 
-int test;
-
 #endif /* LIB_KONTROLKA_H_ */
