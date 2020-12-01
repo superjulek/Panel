@@ -11,8 +11,6 @@
 #include "stm32h7xx_hal.h"
 #include "general.h"
 
-#define MAX_PIN 15
-
 typedef enum MCP23017_pin_t MCP23017_pin_t;
 typedef struct MCP23017_t MCP23017_t;
 
@@ -42,26 +40,33 @@ struct MCP23017_t
     /**
      * Set all pins as output
     */
-   void (*set_all_pins_as_output) (MCP23017_t *public);
+    void (*set_all_pins_as_output)(MCP23017_t *public);
 
     /**
      * Set all pins as input
+     * @param pull_up       whether to pull up all inputs
     */
-   void (*set_all_pins_as_input) (MCP23017_t *public);
+    void (*set_all_pins_as_input)(MCP23017_t *public, bool pull_up);
 
-   /**
+    /**
     * Set single pin state
     * @param pin            pin to be set
     * @param state          state to be set
     */
-   void (*set_pin) (MCP23017_t *public, MCP23017_pin_t pin, bool state);
+    void (*set_pin)(MCP23017_t *public, MCP23017_pin_t pin, bool state);
 
-   /**
+    /**
     * Get single pin state
     * @param pin            pin to be set
+    * @return               state of pin
     */
-   bool (*get_pin) (MCP23017_t *public, MCP23017_pin_t pin);
+    bool (*get_pin)(MCP23017_t *public, MCP23017_pin_t pin);
 
+    /**
+    * Get all pins state
+    * @return               16 byte array of all pins states (bool), needs to be freed
+    */
+    bool *(*get_all_pins)(MCP23017_t *public);
 };
 
 /**

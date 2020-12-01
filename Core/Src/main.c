@@ -24,8 +24,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdlib.h>
+
 #include <../Lib/kontrolka.h>
 #include <../Lib/MCP23017.h>
+#include <../Lib/MAX11616.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +50,9 @@
 /* USER CODE BEGIN PV */
 MCP23017_t *MCP_ligths_1;
 MCP23017_t *MCP_ligths_2;
+MCP23017_t *MCP_switches_1;
+MCP23017_t *MCP_switches_2;
+MAX11616_t *MAX_joypad;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,18 +95,25 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   for (int i = 0; i < 256; ++i)
   {
-	  if (HAL_I2C_IsDeviceReady(&hi2c1, i, 1, 2) == HAL_OK)
-	  {
-		  HAL_Delay(10);
-	  }
+    if (HAL_I2C_IsDeviceReady(&hi2c2, i, 1, 2) == HAL_OK)
+    {
+      HAL_Delay(10);
+    }
   }
   MCP_ligths_1 = MCP23017_create(&hi2c1, MCP_ADDRESS_1);
   MCP_ligths_1->set_all_pins_as_output(MCP_ligths_1);
   MCP_ligths_2 = MCP23017_create(&hi2c1, MCP_ADDRESS_2);
   MCP_ligths_2->set_all_pins_as_output(MCP_ligths_2);
+  MCP_switches_1 = MCP23017_create(&hi2c1, MCP_ADDRESS_3);
+  MCP_switches_1->set_all_pins_as_input(MCP_switches_1, TRUE);
+  MCP_switches_2 = MCP23017_create(&hi2c1, MCP_ADDRESS_4);
+  MCP_switches_2->set_all_pins_as_input(MCP_switches_2, TRUE);
+  MAX_joypad = MAX11616_create(&hi2c2, MAX11616_ADDRESS);
+  MAX_joypad->configure(MAX_joypad);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -110,11 +123,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-	  MCP_ligths_2->set_pin(MCP_ligths_2, GPA0, 1);
-	  HAL_Delay(25);
-	  MCP_ligths_2->set_pin(MCP_ligths_2, GPA0, 0);
-	  HAL_Delay(25);
+    float *joy_pos = MAX_joypad->measure_all_pins(MAX_joypad);
+    float joy1x = joy_pos[AIN0];
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    HAL_Delay(50);
+    bool *pins = MCP_switches_2->get_all_pins(MCP_switches_2);
+    MCP_ligths_2->set_pin(MCP_ligths_2, GPA0, pins[GPB0]);
+    free(joy_pos);
+    free(pins);
   }
   /* USER CODE END 3 */
 }
@@ -173,7 +189,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_I2C1;
   PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_D2PCLK1;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
