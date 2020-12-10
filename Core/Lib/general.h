@@ -8,7 +8,7 @@
 #ifndef LIB_GENERAL_H_
 #define LIB_GENERAL_H_
 
-#define uint8_t unsigned char
+//#define uint8_t unsigned char
 #define bool uint8_t
 #define TRUE 1
 #define FALSE 0

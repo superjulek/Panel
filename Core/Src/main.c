@@ -29,6 +29,8 @@
 #include <../Lib/kontrolka.h>
 #include <../Lib/MCP23017.h>
 #include <../Lib/MAX11616.h>
+#include <../Lib/pins.h>
+#include <../Lib/pin_master.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
