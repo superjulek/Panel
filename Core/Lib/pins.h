@@ -10,6 +10,7 @@
 
 #include "general.h"
 #include "stm32h7xx_hal.h"
+#include "MCP23017.h"
 
 /**
  * Naming convention:
@@ -238,7 +239,7 @@ struct external_pin_t
     /**
      * Pin number
      */
-    uint8_t pin;
+    MCP23017_pin_t pin;
 };
 
 #endif /* LIB_PINS_H_ */

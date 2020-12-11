@@ -54,7 +54,6 @@ static void configure(MAX11616_t *public)
      */
     data[1] = 0b00010111;
     HAL_I2C_Master_Transmit(this->hi2c, this->address, data, 2, I2C_TIMEOUT);
-    HAL_Delay(10);
 }
 static float *measure_all_pins(MAX11616_t *public)
 {
@@ -69,7 +68,6 @@ static float *measure_all_pins(MAX11616_t *public)
         uint16_t combined_data = upper << 8 | lower;
         result[pin] = (float)combined_data / (float)MAX_READING;
     }
-    HAL_Delay(10);
     return result;
 }
 

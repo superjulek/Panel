@@ -21,7 +21,9 @@
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
+#include "fdcan.h"
 #include "i2c.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -52,11 +54,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-MCP23017_t *MCP_ligths_1;
-MCP23017_t *MCP_ligths_2;
-MCP23017_t *MCP_switches_1;
-MCP23017_t *MCP_switches_2;
-MAX11616_t *MAX_joypad;
+pin_master_t *pin_master;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,6 +100,10 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C2_Init();
   MX_ADC1_Init();
+  MX_FDCAN1_Init();
+  MX_USART1_UART_Init();
+  MX_USART3_UART_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   for (int i = 0; i < 256; ++i)
   {
@@ -110,18 +112,7 @@ int main(void)
       HAL_Delay(10);
     }
   }
-  MCP_ligths_1 = MCP23017_create(&hi2c1, MCP_ADDRESS_1);
-  MCP_ligths_1->set_all_pins_as_output(MCP_ligths_1);
-  MCP_ligths_2 = MCP23017_create(&hi2c1, MCP_ADDRESS_2);
-  MCP_ligths_2->set_all_pins_as_output(MCP_ligths_2);
-  MCP_switches_1 = MCP23017_create(&hi2c1, MCP_ADDRESS_3);
-  MCP_switches_1->set_all_pins_as_input(MCP_switches_1, TRUE);
-  MCP_switches_2 = MCP23017_create(&hi2c1, MCP_ADDRESS_4);
-  MCP_switches_2->set_all_pins_as_input(MCP_switches_2, TRUE);
-  MAX_joypad = MAX11616_create(&hi2c2, MAX11616_ADDRESS);
-  MAX_joypad->configure(MAX_joypad);
-  uint16_t ADC_readings[8];
-  HAL_ADC_Start_DMA(&hadc1, ADC_readings, 8);
+  pin_master = pin_master_create();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -131,14 +122,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    float *joy_pos = MAX_joypad->measure_all_pins(MAX_joypad);
-    float joy1x = joy_pos[AIN0];
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    HAL_Delay(50);
-    bool *pins = MCP_switches_2->get_all_pins(MCP_switches_2);
-    MCP_ligths_2->set_pin(MCP_ligths_2, GPA0, pins[GPB0]);
-    free(joy_pos);
-    free(pins);
+    //HAL_Delay(50);
+    pin_master->reload_inputs(pin_master);
   }
   /* USER CODE END 3 */
 }
@@ -174,7 +160,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLM = 1;
   RCC_OscInitStruct.PLL.PLLN = 120;
   RCC_OscInitStruct.PLL.PLLP = 2;
-  RCC_OscInitStruct.PLL.PLLQ = 2;
+  RCC_OscInitStruct.PLL.PLLQ = 12;
   RCC_OscInitStruct.PLL.PLLR = 2;
   RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
   RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
@@ -200,16 +186,21 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_ADC
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_USART6
+                              |RCC_PERIPHCLK_FDCAN|RCC_PERIPHCLK_USART1
+                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_ADC
                               |RCC_PERIPHCLK_I2C1;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
-  PeriphClkInitStruct.PLL2.PLL2N = 20;
-  PeriphClkInitStruct.PLL2.PLL2P = 10;
+  PeriphClkInitStruct.PLL2.PLL2N = 18;
+  PeriphClkInitStruct.PLL2.PLL2P = 1;
   PeriphClkInitStruct.PLL2.PLL2Q = 2;
   PeriphClkInitStruct.PLL2.PLL2R = 2;
   PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2VCIRANGE_3;
   PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2VCOMEDIUM;
-  PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
+  PeriphClkInitStruct.PLL2.PLL2FRACN = 6144;
+  PeriphClkInitStruct.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL;
+  PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+  PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16CLKSOURCE_D2PCLK2;
   PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_D2PCLK1;
   PeriphClkInitStruct.AdcClockSelection = RCC_ADCCLKSOURCE_PLL2;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)

@@ -96,12 +96,12 @@ static bool *get_all_pins(MCP23017_t *public)
     private_MCP23017_t *this = (private_MCP23017_t *)public;
     uint8_t data[2];
     HAL_I2C_Mem_Read(this->hi2c, this->address, GPIOA_REG, 1, data, 2, I2C_TIMEOUT);
-    uint16_t data_combined = data[0] << 8 | data[1];
+    uint16_t data_combined = (((uint16_t)data[0]) << 8) | ((uint16_t)data[1]);
     bool *pins_states;
     pins_states = malloc((MAX_PIN + 1) * sizeof(bool));
     for(int pin = 0; pin <= MAX_PIN; ++pin)
     {
-        pins_states[pin] = data_combined & (1 << (15 - pin));
+        pins_states[pin] = ((data_combined & (1 << (15 - pin))) ? TRUE : FALSE);
     }
     return pins_states;
 }
