@@ -7,8 +7,12 @@
 
 #include "pin_master.h"
 #include "MCP23017.h"
+#include "MAX11616.h"
+
 #include "stdlib.h"
 #include "stm32h7xx_hal.h"
+#include "adc.h"
+#include "i2c.h"
 
 typedef struct private_pin_master_t private_pin_master_t;
 
@@ -48,6 +52,21 @@ struct private_pin_master_t
      * External digital output pins.
      */
     external_pin_t external_DO_pins[LIGHT32 - LIGHT1 + 1];
+
+    /**
+     * Buffer for DMA ADC readings.
+     */
+    uint16_t internal_AI_DMA_buffer[POT8 - POT1 + 1];
+
+    /**
+     * MCP23017 instances
+     */
+    MCP23017_t *DI_DO_expanders[4];
+
+    /**
+     * MAX11616 instance
+     */
+    MAX11616_t *AI_expander;
 };
 
 static void reload_inputs(pin_master_t *public)
@@ -93,46 +112,46 @@ pin_master_t *pin_master_create()
     /* All pins are asigned here since there will always be only one instance of pin_master_t */
 
     /* Assign values for internal input pins */
-    this->internal_DI_pins[SWITCH1] = (internal_pin_t){.port = GPIOA, .port = 15};
-    this->internal_DI_pins[SWITCH2] = (internal_pin_t){.port = GPIOC, .port = 10};
-    this->internal_DI_pins[SWITCH3] = (internal_pin_t){.port = GPIOC, .port = 11};
-    this->internal_DI_pins[SWITCH4] = (internal_pin_t){.port = GPIOC, .port = 12};
-    this->internal_DI_pins[SWITCH5] = (internal_pin_t){.port = GPIOD, .port = 0};
-    this->internal_DI_pins[SWITCH6] = (internal_pin_t){.port = GPIOD, .port = 1};
-    this->internal_DI_pins[SWITCH7] = (internal_pin_t){.port = GPIOD, .port = 2};
-    this->internal_DI_pins[SWITCH8] = (internal_pin_t){.port = GPIOD, .port = 3};
-    this->internal_DI_pins[SWITCH9] = (internal_pin_t){.port = GPIOD, .port = 4};
-    this->internal_DI_pins[SWITCH10] = (internal_pin_t){.port = GPIOD, .port = 5};
-    this->internal_DI_pins[SWITCH11] = (internal_pin_t){.port = GPIOD, .port = 6};
-    this->internal_DI_pins[SWITCH12] = (internal_pin_t){.port = GPIOD, .port = 7};
-    this->internal_DI_pins[SWITCH13] = (internal_pin_t){.port = GPIOG, .port = 9};
-    this->internal_DI_pins[SWITCH14] = (internal_pin_t){.port = GPIOG, .port = 10};
-    this->internal_DI_pins[SWITCH15] = (internal_pin_t){.port = GPIOG, .port = 11};
-    this->internal_DI_pins[SWITCH16] = (internal_pin_t){.port = GPIOG, .port = 12};
-    this->internal_DI_pins[SWITCH17] = (internal_pin_t){.port = GPIOG, .port = 13};
-    this->internal_DI_pins[SWITCH18] = (internal_pin_t){.port = GPIOG, .port = 14};
-    this->internal_DI_pins[SWITCH19] = (internal_pin_t){.port = GPIOG, .port = 15};
-    this->internal_DI_pins[SWITCH20] = (internal_pin_t){.port = GPIOB, .port = 3};
-    this->internal_DI_pins[SWITCH21] = (internal_pin_t){.port = GPIOB, .port = 4};
-    this->internal_DI_pins[SWITCH22] = (internal_pin_t){.port = GPIOB, .port = 5};
-    this->internal_DI_pins[SWITCH23] = (internal_pin_t){.port = GPIOB, .port = 6};
-    this->internal_DI_pins[SWITCH24] = (internal_pin_t){.port = GPIOB, .port = 7};
-    this->internal_DI_pins[SWITCH25] = (internal_pin_t){.port = GPIOE, .port = 0};
-    this->internal_DI_pins[SWITCH26] = (internal_pin_t){.port = GPIOE, .port = 1};
-    this->internal_DI_pins[SWITCH27] = (internal_pin_t){.port = GPIOE, .port = 2};
-    this->internal_DI_pins[SWITCH28] = (internal_pin_t){.port = GPIOE, .port = 3};
-    this->internal_DI_pins[SWITCH29] = (internal_pin_t){.port = GPIOE, .port = 4};
-    this->internal_DI_pins[SWITCH30] = (internal_pin_t){.port = GPIOE, .port = 5};
-    this->internal_DI_pins[SWITCH31] = (internal_pin_t){.port = GPIOE, .port = 6};
-    this->internal_DI_pins[SWITCH32] = (internal_pin_t){.port = GPIOC, .port = 13};
-    this->internal_DI_pins[SWITCH33] = (internal_pin_t){.port = GPIOC, .port = 14};
-    this->internal_DI_pins[SWITCH34] = (internal_pin_t){.port = GPIOC, .port = 15};
-    this->internal_DI_pins[SWITCH35] = (internal_pin_t){.port = GPIOF, .port = 0};
-    this->internal_DI_pins[SWITCH36] = (internal_pin_t){.port = GPIOF, .port = 1};
-    this->internal_DI_pins[SWITCH37] = (internal_pin_t){.port = GPIOF, .port = 2};
-    this->internal_DI_pins[SWITCH38] = (internal_pin_t){.port = GPIOF, .port = 3};
-    this->internal_DI_pins[SWITCH39] = (internal_pin_t){.port = GPIOF, .port = 4};
-    this->internal_DI_pins[SWITCH40] = (internal_pin_t){.port = GPIOF, .port = 5};
+    this->internal_DI_pins[SWITCH1] = (internal_pin_t){.port = GPIOA, .pin = 15};
+    this->internal_DI_pins[SWITCH2] = (internal_pin_t){.port = GPIOC, .pin = 10};
+    this->internal_DI_pins[SWITCH3] = (internal_pin_t){.port = GPIOC, .pin = 11};
+    this->internal_DI_pins[SWITCH4] = (internal_pin_t){.port = GPIOC, .pin = 12};
+    this->internal_DI_pins[SWITCH5] = (internal_pin_t){.port = GPIOD, .pin = 0};
+    this->internal_DI_pins[SWITCH6] = (internal_pin_t){.port = GPIOD, .pin = 1};
+    this->internal_DI_pins[SWITCH7] = (internal_pin_t){.port = GPIOD, .pin = 2};
+    this->internal_DI_pins[SWITCH8] = (internal_pin_t){.port = GPIOD, .pin = 3};
+    this->internal_DI_pins[SWITCH9] = (internal_pin_t){.port = GPIOD, .pin = 4};
+    this->internal_DI_pins[SWITCH10] = (internal_pin_t){.port = GPIOD, .pin = 5};
+    this->internal_DI_pins[SWITCH11] = (internal_pin_t){.port = GPIOD, .pin = 6};
+    this->internal_DI_pins[SWITCH12] = (internal_pin_t){.port = GPIOD, .pin = 7};
+    this->internal_DI_pins[SWITCH13] = (internal_pin_t){.port = GPIOG, .pin = 9};
+    this->internal_DI_pins[SWITCH14] = (internal_pin_t){.port = GPIOG, .pin = 10};
+    this->internal_DI_pins[SWITCH15] = (internal_pin_t){.port = GPIOG, .pin = 11};
+    this->internal_DI_pins[SWITCH16] = (internal_pin_t){.port = GPIOG, .pin = 12};
+    this->internal_DI_pins[SWITCH17] = (internal_pin_t){.port = GPIOG, .pin = 13};
+    this->internal_DI_pins[SWITCH18] = (internal_pin_t){.port = GPIOG, .pin = 14};
+    this->internal_DI_pins[SWITCH19] = (internal_pin_t){.port = GPIOG, .pin = 15};
+    this->internal_DI_pins[SWITCH20] = (internal_pin_t){.port = GPIOB, .pin = 3};
+    this->internal_DI_pins[SWITCH21] = (internal_pin_t){.port = GPIOB, .pin = 4};
+    this->internal_DI_pins[SWITCH22] = (internal_pin_t){.port = GPIOB, .pin = 5};
+    this->internal_DI_pins[SWITCH23] = (internal_pin_t){.port = GPIOB, .pin = 6};
+    this->internal_DI_pins[SWITCH24] = (internal_pin_t){.port = GPIOB, .pin = 7};
+    this->internal_DI_pins[SWITCH25] = (internal_pin_t){.port = GPIOE, .pin = 0};
+    this->internal_DI_pins[SWITCH26] = (internal_pin_t){.port = GPIOE, .pin = 1};
+    this->internal_DI_pins[SWITCH27] = (internal_pin_t){.port = GPIOE, .pin = 2};
+    this->internal_DI_pins[SWITCH28] = (internal_pin_t){.port = GPIOE, .pin = 3};
+    this->internal_DI_pins[SWITCH29] = (internal_pin_t){.port = GPIOE, .pin = 4};
+    this->internal_DI_pins[SWITCH30] = (internal_pin_t){.port = GPIOE, .pin = 5};
+    this->internal_DI_pins[SWITCH31] = (internal_pin_t){.port = GPIOE, .pin = 6};
+    this->internal_DI_pins[SWITCH32] = (internal_pin_t){.port = GPIOC, .pin = 13};
+    this->internal_DI_pins[SWITCH33] = (internal_pin_t){.port = GPIOC, .pin = 14};
+    this->internal_DI_pins[SWITCH34] = (internal_pin_t){.port = GPIOC, .pin = 15};
+    this->internal_DI_pins[SWITCH35] = (internal_pin_t){.port = GPIOF, .pin = 0};
+    this->internal_DI_pins[SWITCH36] = (internal_pin_t){.port = GPIOF, .pin = 1};
+    this->internal_DI_pins[SWITCH37] = (internal_pin_t){.port = GPIOF, .pin = 2};
+    this->internal_DI_pins[SWITCH38] = (internal_pin_t){.port = GPIOF, .pin = 3};
+    this->internal_DI_pins[SWITCH39] = (internal_pin_t){.port = GPIOF, .pin = 4};
+    this->internal_DI_pins[SWITCH40] = (internal_pin_t){.port = GPIOF, .pin = 5};
 
     this->internal_DI_pins[SWITCH_12v1] = (internal_pin_t){.port = GPIOF, .pin = 6};
     this->internal_DI_pins[SWITCH_12v2] = (internal_pin_t){.port = GPIOF, .pin = 7};
@@ -243,6 +262,23 @@ pin_master_t *pin_master_create()
     this->external_DO_pins[LIGHT30] = (external_pin_t){.exp_num = 2, .pin = GPB5};
     this->external_DO_pins[LIGHT31] = (external_pin_t){.exp_num = 2, .pin = GPB6};
     this->external_DO_pins[LIGHT32] = (external_pin_t){.exp_num = 2, .pin = GPB7};
+
+    /* Start DMA readings from internal ADC */
+    HAL_ADC_Start_DMA(&hadc1, this->internal_AI_DMA_buffer, POT8 - POT1 + 1);
+
+    /* Create and configure instances od DI / DO expanders */
+    this->DI_DO_expanders[0] = MCP23017_create(&hi2c1, MCP_ADDRESS_1);
+    this->DI_DO_expanders[0]->set_all_pins_as_output(this->DI_DO_expanders[0]);
+    this->DI_DO_expanders[1] = MCP23017_create(&hi2c1, MCP_ADDRESS_2);
+    this->DI_DO_expanders[1]->set_all_pins_as_output(this->DI_DO_expanders[1]);
+    this->DI_DO_expanders[2] = MCP23017_create(&hi2c1, MCP_ADDRESS_3);
+    this->DI_DO_expanders[2]->set_all_pins_as_input(this->DI_DO_expanders[2], TRUE);
+    this->DI_DO_expanders[3] = MCP23017_create(&hi2c1, MCP_ADDRESS_4);
+    this->DI_DO_expanders[3]->set_all_pins_as_input(this->DI_DO_expanders[3], TRUE);
+
+    /* Create and configure instance of AI expander */
+    this->AI_expander = MAX11616_create(&hi2c2, MAX11616_ADDRESS);
+    this->AI_expander->configure(this->AI_expander);
 
     return &this->public;
 }
