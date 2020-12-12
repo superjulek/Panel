@@ -82,8 +82,8 @@ static void reload_inputs(pin_master_t *public)
     }
 
     /* Read external DI pins */
-    bool *states_first = this->DI_DO_expanders[2]->get_all_pins(this->DI_DO_expanders[2]); // first input expander - no 3
-    bool *states_second = this->DI_DO_expanders[3]->get_all_pins(this->DI_DO_expanders[3]); // second input expander - no 4
+    bool *states_first = this->DI_DO_expanders[2]->get_all_pins(this->DI_DO_expanders[2]);  // first input expander - no 3 (index 2)
+    bool *states_second = this->DI_DO_expanders[3]->get_all_pins(this->DI_DO_expanders[3]); // second input expander - no 4 (index 3)
     for (pins_DI_t pin = SWITCH_6_A_1; pin <= SWITCH_12_L; ++pin)
     {
         external_pin_t ext_pin = this->external_DI_pins[pin - SWITCH_6_A_1];
@@ -120,6 +120,25 @@ static void reload_inputs(pin_master_t *public)
 static void reload_outputs(pin_master_t *public)
 {
     private_pin_master_t *this = (private_pin_master_t *)public;
+
+    /* Set external DO pins */
+    bool states_first[16];
+    bool states_second[16];
+    for (pins_DO_t pin = LIGHT1; pin <= LIGHT32; ++pin)
+    {
+        external_pin_t ext_pin = this->external_DO_pins[pin - LIGHT1];
+        switch (ext_pin.exp_num)
+        {
+        case 1:
+            states_first[ext_pin.pin] = this->pins_DO_required_states[pin];
+            break;
+        case 2:
+            states_second[ext_pin.pin] = this->pins_DO_required_states[pin];
+            break;
+        }
+    }
+    this->DI_DO_expanders[0]->set_all_pins(this->DI_DO_expanders[0], states_first);  // first output expander - no 1 (index 0)
+    this->DI_DO_expanders[1]->set_all_pins(this->DI_DO_expanders[1], states_second); // second output expander - no 2 (index 1)
 }
 
 pin_master_t *pin_master_create()

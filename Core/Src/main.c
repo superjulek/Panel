@@ -125,6 +125,7 @@ int main(void)
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     //HAL_Delay(50);
     pin_master->reload_inputs(pin_master);
+    pin_master->reload_outputs(pin_master);
   }
   /* USER CODE END 3 */
 }

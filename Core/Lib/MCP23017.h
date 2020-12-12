@@ -63,6 +63,12 @@ struct MCP23017_t
     bool (*get_pin)(MCP23017_t *public, MCP23017_pin_t pin);
 
     /**
+     * Set all pins state
+     * @param states        16 bool array of required states
+     */
+    void (*set_all_pins)(MCP23017_t *public, bool *states);
+
+    /**
     * Get all pins state
     * @return               16 byte array of all pins states (bool), needs to be freed
     */

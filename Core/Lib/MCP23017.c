@@ -8,16 +8,14 @@
 #include <stdlib.h>
 #include "MCP23017.h"
 
-#define GPPUA_REQ   0x0C
-#define GPPUB_REQ   0x0D
-#define IODIRA_REG  0x00
-#define IODIRB_REG  0x01
-#define GPIOA_REG   0x12
-#define GPIOB_REG   0x13
-#define OLATA_REG   0x14
-#define OLATB_REG   0x15
-
-#define MAX_PIN 15
+#define GPPUA_REQ 0x0C
+#define GPPUB_REQ 0x0D
+#define IODIRA_REG 0x00
+#define IODIRB_REG 0x01
+#define GPIOA_REG 0x12
+#define GPIOB_REG 0x13
+#define OLATA_REG 0x14
+#define OLATB_REG 0x15
 
 typedef struct private_MCP23017_t private_MCP23017_t;
 
@@ -60,18 +58,18 @@ static void set_all_pins_as_input(MCP23017_t *public, bool pull_up)
 static void set_pin(MCP23017_t *public, MCP23017_pin_t pin, bool state)
 {
     private_MCP23017_t *this = (private_MCP23017_t *)public;
-    if (pin > MAX_PIN)
+    if (pin > GPB0)
     {
         return;
     }
-    if (state > 1)
+    if (state > TRUE)
     {
-        state = 1;
+        state = TRUE;
     }
     uint8_t data[2];
     HAL_I2C_Mem_Read(this->hi2c, this->address, OLATA_REG, 1, data, 2, I2C_TIMEOUT);
     uint16_t data_combined = data[0] << 8 | data[1];
-    data_combined &= 0xFF - 1 << (15 - pin);
+    data_combined &= 0xFF - (1 << (15 - pin));
     data_combined |= state << (15 - pin);
     data[0] = (data_combined >> 8);
     data[1] = data_combined;
@@ -81,7 +79,7 @@ static void set_pin(MCP23017_t *public, MCP23017_pin_t pin, bool state)
 static bool get_pin(MCP23017_t *public, MCP23017_pin_t pin)
 {
     private_MCP23017_t *this = (private_MCP23017_t *)public;
-    if (pin > MAX_PIN)
+    if (pin > GPB0)
     {
         return 0;
     }
@@ -91,6 +89,23 @@ static bool get_pin(MCP23017_t *public, MCP23017_pin_t pin)
     return data_combined & (1 << (15 - pin));
 }
 
+static void set_all_pins(MCP23017_t *public, bool *states)
+{
+    private_MCP23017_t *this = (private_MCP23017_t *)public;
+    uint16_t data_combined = 0;
+    uint8_t data[2];
+    for (MCP23017_pin_t pin = GPA7; pin <= GPB0; ++pin)
+    {
+        if (states[pin])
+        {
+            data_combined |= (1 << (15 - pin));
+        }
+    }
+    data[0] = (data_combined >> 8);
+    data[1] = data_combined;
+    HAL_I2C_Mem_Write(this->hi2c, this->address, OLATA_REG, 1, data, 2, I2C_TIMEOUT);
+}
+
 static bool *get_all_pins(MCP23017_t *public)
 {
     private_MCP23017_t *this = (private_MCP23017_t *)public;
@@ -98,8 +113,8 @@ static bool *get_all_pins(MCP23017_t *public)
     HAL_I2C_Mem_Read(this->hi2c, this->address, GPIOA_REG, 1, data, 2, I2C_TIMEOUT);
     uint16_t data_combined = (((uint16_t)data[0]) << 8) | ((uint16_t)data[1]);
     bool *pins_states;
-    pins_states = malloc((MAX_PIN + 1) * sizeof(bool));
-    for(int pin = 0; pin <= MAX_PIN; ++pin)
+    pins_states = malloc((GPB0 + 1) * sizeof(bool));
+    for (MCP23017_pin_t pin = GPA7; pin <= GPB0; ++pin)
     {
         pins_states[pin] = ((data_combined & (1 << (15 - pin))) ? TRUE : FALSE);
     }
@@ -115,6 +130,7 @@ MCP23017_t *MCP23017_create(I2C_HandleTypeDef *hi2c, uint8_t address)
             .set_all_pins_as_input = set_all_pins_as_input,
             .set_pin = set_pin,
             .get_pin = get_pin,
+            .set_all_pins = set_all_pins,
             .get_all_pins = get_all_pins,
         },
         .hi2c = hi2c,
