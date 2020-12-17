@@ -14,12 +14,12 @@
 
 /**
  * Naming convention:
- * pins_AB_t, where:
+ * pins_AB, where:
  * A        D for digital       A for analog
  * B        I for input         O for output
  */
 
-enum pins_DI_t
+enum pins_DI
 {
     /* Standard switches */
     SWITCH1,
@@ -141,7 +141,7 @@ enum pins_DI_t
     PINS_DI_NUM
 };
 
-enum pins_DO_t
+enum pins_DO
 {
     /* LED lights (external) */
     LIGHT1,
@@ -180,7 +180,7 @@ enum pins_DO_t
     PINS_DO_NUM
 };
 
-enum pins_AI_t
+enum pins_AI
 {
     /* Potentiometers */
     POT1,

@@ -29,6 +29,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdlib.h>
+#include <vector>
 
 #include <../Lib/kontrolka.hpp>
 #include <../Lib/mcp23017.hpp>
@@ -125,6 +126,22 @@ int main(void)
     //HAL_Delay(50);
     pin_master.reload_inputs();
     pin_master.reload_outputs();
+    std::vector<pins_DI> request;
+    request.push_back(SWITCH1);
+    request.push_back(SWITCH2);
+    std::vector<StateRes> response = pin_master.get_inputs(request);
+    for (auto pin : response)
+    {
+    	HAL_Delay(1);
+    }
+    std::vector<pins_AI> request_a;
+    request_a.push_back(POT1);
+    std::vector<StateRes> response_a = pin_master.get_inputs(request_a);
+    for (auto pin : response_a)
+    {
+    	HAL_Delay(1);
+    }
+    HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
