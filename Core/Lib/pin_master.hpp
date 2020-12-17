@@ -24,21 +24,18 @@ struct StateReq
 
 // Response with DI and AI states
 
-struct StateRes
+union StateRes
 {
-    union
+    struct
     {
-        struct
-        {
-            pins_DI DI_pin;
-            bool state;
-        } digital;
-        struct
-        {
-            pins_AI AI_pin;
-            float value;
-        } analog;
-    };
+        pins_DI DI_pin;
+        bool state;
+    } digital;
+    struct
+    {
+        pins_AI AI_pin;
+        float value;
+    } analog;
 };
 
 class PinMaster
