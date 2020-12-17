@@ -8,9 +8,9 @@
 #ifndef LIB_PINS_H_
 #define LIB_PINS_H_
 
-#include "general.h"
+#include "general.hpp"
 #include "stm32h7xx_hal.h"
-#include "MCP23017.h"
+#include "MCP23017.hpp"
 
 /**
  * Naming convention:
@@ -18,14 +18,6 @@
  * A        D for digital       A for analog
  * B        I for input         O for output
  */
-
-typedef enum pins_DI_t pins_DI_t;
-typedef enum pins_DO_t pins_DO_t;
-typedef enum pins_AI_t pins_AI_t;
-// no pins_IAO_t
-
-typedef struct internal_pin_t internal_pin_t;
-typedef struct external_pin_t external_pin_t;
 
 enum pins_DI_t
 {
@@ -216,7 +208,7 @@ enum pins_AI_t
     PINS_AI_NUM
 };
 
-struct internal_pin_t
+struct internal_pin
 {
     /**
      * Pin port
@@ -229,7 +221,7 @@ struct internal_pin_t
     uint16_t pin;
 };
 
-struct external_pin_t
+struct external_pin
 {
     /**
      *  Expander number
@@ -239,7 +231,7 @@ struct external_pin_t
     /**
      * Pin number
      */
-    MCP23017_pin_t pin;
+    MCP23017::MCP23017_pin pin;
 };
 
 #endif /* LIB_PINS_H_ */

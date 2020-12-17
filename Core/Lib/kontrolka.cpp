@@ -5,4 +5,4 @@
  *      Author: juliusz
  */
 
-#include "kontrolka.h"
+#include "kontrolka.hpp"

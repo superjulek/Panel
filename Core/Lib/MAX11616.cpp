@@ -6,34 +6,16 @@
  */
 
 #include <stdlib.h>
-#include "MAX11616.h"
+#include "MAX11616.hpp"
 
-#define MAX_PIN 11
 #define MAX_READING 4095
 
-typedef struct private_MAX11616_t private_MAX11616_t;
-
-struct private_MAX11616_t
+MAX11616::MAX11616(I2C_HandleTypeDef *hi2c, uint8_t address)
+    : hi2c(hi2c), address(address)
 {
-    /**
-     * Public interface
-     */
-    MAX11616_t public;
-
-    /**
-     * I2C handle type def
-     */
-    I2C_HandleTypeDef *hi2c;
-
-    /**
-     * I2C address
-     */
-    uint8_t address;
-};
-
-static void configure(MAX11616_t *public)
+}
+void MAX11616::configure()
 {
-    private_MAX11616_t *this = (private_MAX11616_t *)public;
     uint8_t data[2];
     /**
      * Setup byte
@@ -55,32 +37,17 @@ static void configure(MAX11616_t *public)
     data[1] = 0b00010111;
     HAL_I2C_Master_Transmit(this->hi2c, this->address, data, 2, I2C_TIMEOUT);
 }
-static float *measure_all_pins(MAX11616_t *public)
+std::array<float, MAX_PINS_NUM> MAX11616::measure_all_pins()
 {
-    private_MAX11616_t *this = (private_MAX11616_t *)public;
+    std::array<float, MAX_PINS_NUM> return_arr;
     uint8_t data[24];
     int status = HAL_I2C_Master_Receive(this->hi2c, this->address, data, 24, I2C_TIMEOUT);
-    float *result = malloc((MAX_PIN + 1) * sizeof(float));
-    for (int pin = 0; pin <= MAX_PIN; pin++)
+    for (int pin = MAX11616_pin::AIN0; pin <= MAX11616_pin::AIN11; pin++)
     {
         uint16_t upper = data[2 * pin] & 0x0F;
         uint16_t lower = data[2 * pin + 1];
         uint16_t combined_data = upper << 8 | lower;
-        result[pin] = (float)combined_data / (float)MAX_READING;
+        return_arr[pin] = (float)combined_data / (float) MAX_READING;
     }
-    return result;
-}
-
-MAX11616_t *MAX11616_create(I2C_HandleTypeDef *hi2c, uint8_t address)
-{
-    private_MAX11616_t *this = malloc(sizeof(private_MAX11616_t));
-    *this = (private_MAX11616_t){
-        .public = {
-            .configure = configure,
-            .measure_all_pins = measure_all_pins,
-        },
-        .hi2c = hi2c,
-        .address = address,
-    };
-    return &(this->public);
+    return return_arr;
 }

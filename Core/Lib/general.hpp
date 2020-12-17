@@ -9,7 +9,7 @@
 #define LIB_GENERAL_H_
 
 //#define uint8_t unsigned char
-#define bool uint8_t
+//#define bool uint8_t
 #define TRUE 1
 #define FALSE 0
 
@@ -22,6 +22,5 @@
 #define MAX11616_ADDRESS 0b01101010
 
 #define I2C_TIMEOUT 1
-
 
 #endif /* LIB_GENERAL_H_ */

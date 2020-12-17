@@ -30,11 +30,11 @@
 /* USER CODE BEGIN Includes */
 #include <stdlib.h>
 
-#include <../Lib/kontrolka.h>
-#include <../Lib/MCP23017.h>
-#include <../Lib/MAX11616.h>
-#include <../Lib/pins.h>
-#include <../Lib/pin_master.h>
+#include <../Lib/kontrolka.hpp>
+#include <../Lib/MCP23017.hpp>
+#include <../Lib/MAX11616.hpp>
+#include <../Lib/pins.hpp>
+#include <../Lib/pin_master.hpp>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +54,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-pin_master_t *pin_master;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -109,10 +108,10 @@ int main(void)
   {
     if (HAL_I2C_IsDeviceReady(&hi2c2, i, 1, 2) == HAL_OK)
     {
-      HAL_Delay(10);
+      //HAL_Delay(10);
     }
   }
-  pin_master = pin_master_create();
+  pin_master main_master = pin_master();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,8 +123,8 @@ int main(void)
     /* USER CODE BEGIN 3 */
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     //HAL_Delay(50);
-    pin_master->reload_inputs(pin_master);
-    pin_master->reload_outputs(pin_master);
+    main_master.reload_inputs();
+    main_master.reload_outputs();
   }
   /* USER CODE END 3 */
 }
