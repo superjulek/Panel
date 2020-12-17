@@ -1,5 +1,5 @@
 /*
- * pins.h
+ * pins.hpp
  *
  *  Created on: Dec 10, 2020
  *      Author: juliusz
@@ -10,7 +10,7 @@
 
 #include "general.hpp"
 #include "stm32h7xx_hal.h"
-#include "MCP23017.hpp"
+#include "mcp23017.hpp"
 
 /**
  * Naming convention:

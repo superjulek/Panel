@@ -1,5 +1,5 @@
 /*
- * MAX11616.hpp
+ * max11616.hpp
  *
  *  Created on: Nov 30, 2020
  *      Author: juliusz

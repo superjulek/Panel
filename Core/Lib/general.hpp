@@ -8,11 +8,6 @@
 #ifndef LIB_GENERAL_H_
 #define LIB_GENERAL_H_
 
-//#define uint8_t unsigned char
-//#define bool uint8_t
-#define TRUE 1
-#define FALSE 0
-
 /* I2C addresses, already left-shifted */
 #define MCP_ADDRESS_1 0b01000000// Lights 1
 #define MCP_ADDRESS_2 0b01000010 // Lights 2

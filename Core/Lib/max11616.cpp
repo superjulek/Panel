@@ -6,7 +6,7 @@
  */
 
 #include <stdlib.h>
-#include "MAX11616.hpp"
+#include "max11616.hpp"
 
 #define MAX_READING 4095
 
@@ -35,13 +35,13 @@ void MAX11616::configure()
      * Bit 0            differential mode   0 single-ended mode
      */
     data[1] = 0b00010111;
-    HAL_I2C_Master_Transmit(this->hi2c, this->address, data, 2, I2C_TIMEOUT);
+    HAL_I2C_Master_Transmit(hi2c, address, data, 2, I2C_TIMEOUT);
 }
 std::array<float, MAX_PINS_NUM> MAX11616::measure_all_pins()
 {
     std::array<float, MAX_PINS_NUM> return_arr;
     uint8_t data[24];
-    int status = HAL_I2C_Master_Receive(this->hi2c, this->address, data, 24, I2C_TIMEOUT);
+    int status = HAL_I2C_Master_Receive(hi2c, address, data, 24, I2C_TIMEOUT);
     for (int pin = MAX11616_pin::AIN0; pin <= MAX11616_pin::AIN11; pin++)
     {
         uint16_t upper = data[2 * pin] & 0x0F;
