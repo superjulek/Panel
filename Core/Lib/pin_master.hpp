@@ -52,6 +52,7 @@ public:
     bool get_input(const pins::pins_DI &pin);
     float get_input(const pins::pins_AI &pin);
     void set_output(const pins::pins_DO &pin, bool state);
+    void handle_interrupt(); // TODO: implement
 
 private:
     std::array<bool, pins::PINS_DI_NUM> pins_DI_states;
@@ -64,3 +65,8 @@ private:
     std::array<MCP23017, 4> DI_DO_expanders;
     MAX11616 AI_expander;
 };
+
+/**
+ * One and only one instance of Dictator
+ */
+extern PinMaster *pin_master;

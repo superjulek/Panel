@@ -37,6 +37,7 @@
 #include <../Lib/max11616.hpp>
 #include <../Lib/pins.hpp>
 #include <../Lib/pin_master.hpp>
+#include <../Lib/dictator.hpp>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -113,7 +114,9 @@ int main(void)
       //HAL_Delay(10);
     }
   }
-  PinMaster pin_master = PinMaster();
+
+  pin_master = new PinMaster();
+  dictator = new Dictator();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -123,10 +126,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    pin_master.reload_inputs();
-    pin_master.reload_outputs();
-    bool state = pin_master.get_input(pins::SWITCH1);
-    pin_master.set_output(pins::LIGHT1, state);
+    pin_master->reload_inputs();
+    pin_master->reload_outputs();
+    bool state = pin_master->get_input(pins::SWITCH1);
+    uint8_t position = dictator->switches[Dictator::Switches::SWITCH_6POS_1].get_position();
+    pin_master->set_output(pins::LIGHT1, state);
   }
   /* USER CODE END 3 */
 }
