@@ -15,7 +15,7 @@ Switch::Switch(const std::vector<pins::pins_DI> &pins, const std::vector<uint16_
 
 uint8_t Switch::get_position()
 {
-    std::vector<StateRes> states = pin_master->get_inputs(pins);
+    std::vector<StateRes> states = PinMaster::get().get_inputs(pins);
     uint16_t table = 0;
     for (uint8_t pin = 0; pin < states.size(); ++pin)
     {

@@ -38,11 +38,13 @@ union StateRes
     } analog;
 };
 
+/* Singleton for controlling raw IO */
 class PinMaster
 {
 public:
-    PinMaster();
-    ~PinMaster();
+    PinMaster(const PinMaster &) = delete;
+    /* Get instance of PinMaster */
+    static PinMaster& get();
     void reload_inputs();
     void reload_outputs();
     void reset_outputs();
@@ -55,6 +57,7 @@ public:
     void handle_interrupt(); // TODO: implement
 
 private:
+    PinMaster();
     std::array<bool, pins::PINS_DI_NUM> pins_DI_states;
     std::array<float, pins::PINS_AI_NUM> pins_AI_states;
     std::array<bool, pins::PINS_DO_NUM> pins_DO_required_states;
@@ -65,8 +68,3 @@ private:
     std::array<MCP23017, 4> DI_DO_expanders;
     MAX11616 AI_expander;
 };
-
-/**
- * One and only one instance of Dictator
- */
-extern PinMaster *pin_master;

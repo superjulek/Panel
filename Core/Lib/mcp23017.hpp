@@ -19,7 +19,6 @@ class MCP23017
 {
 public:
     MCP23017(I2C_HandleTypeDef *hi2c, uint8_t address);
-    ~MCP23017();
     void set_all_pins_as_output();
     void set_all_pins_as_input(bool pull_up);
     void set_all_pins(std::array<bool, MCP_PINS_NUM> states);

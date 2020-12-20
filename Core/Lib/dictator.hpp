@@ -16,10 +16,13 @@
 #include "switch.hpp"
 #include <vector>
 
+/* Singleton for controlling IO devices */
 class Dictator
 {
-    public:
-    Dictator();
+public:
+    Dictator(const Dictator &) = delete;
+    /* Get instance of Dictator */
+    static Dictator &get();
     enum Switches // Must match order in Dictator constructor
     {
         SWITCH_2POS_1,
@@ -27,9 +30,7 @@ class Dictator
         SWITCH_6POS_1,
     };
     std::vector<Switch> switches;
-};
 
-/**
- * One and only one instance of Dictator
- */
-extern Dictator *dictator;
+private:
+    Dictator();
+};

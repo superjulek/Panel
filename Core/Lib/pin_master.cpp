@@ -16,8 +16,6 @@
 
 #define INTERNAL_ADC_MAX 65536.
 
-PinMaster *pin_master;
-
 PinMaster::PinMaster()
     : DI_DO_expanders{MCP23017{&hi2c1, MCP_ADDRESS_1}, MCP23017{&hi2c1, MCP_ADDRESS_2},
                       MCP23017{&hi2c1, MCP_ADDRESS_3}, MCP23017{&hi2c1, MCP_ADDRESS_4}},
@@ -310,4 +308,10 @@ float PinMaster::get_input(const pins::pins_AI &pin)
 void PinMaster::set_output(const pins::pins_DO &pin, bool state)
 {
     pins_DO_required_states[pin] = state;
+}
+
+PinMaster &PinMaster::get()
+{
+    static PinMaster instance;
+    return instance;
 }

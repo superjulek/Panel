@@ -19,7 +19,6 @@ class MAX11616
 {
 public:
     MAX11616(I2C_HandleTypeDef *hi2c, uint8_t address);
-    ~MAX11616();
     void configure();
     std::array<float, MAX_PINS_NUM> measure_all_pins();
     enum MAX11616_pin : uint8_t
