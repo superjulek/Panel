@@ -1,5 +1,5 @@
 /*
- * config.h
+ * config.hpp
  *
  *  Created on: Nov 27, 2020
  *      Author: juliusz
