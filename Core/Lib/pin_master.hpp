@@ -49,7 +49,15 @@ public:
     void reload_outputs();
     void reset_outputs();
     void set_outputs(const std::vector<StateReq> &req_states);
+    /**
+     * Get inputs in order of request
+     * @param pins      vector of requested pins
+     */
     std::vector<StateRes> get_inputs(const std::vector<pins::pins_AI> &pins);
+    /**
+     * Get inputs in order of request
+     * @param pins      vector of requested pins
+     */
     std::vector<StateRes> get_inputs(const std::vector<pins::pins_DI> &pins);
     bool get_input(const pins::pins_DI &pin);
     float get_input(const pins::pins_AI &pin);

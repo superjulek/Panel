@@ -45,6 +45,6 @@ public:
 
 private:
     std::vector<pins::pins_AI> pins;
-    std::vector<float> calibration_offset;
+    std::vector<float> zero_position;
     std::vector<float> range;
 };

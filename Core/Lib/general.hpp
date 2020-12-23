@@ -1,12 +1,11 @@
 /*
- * general.h
+ * general.hpp
  *
  *  Created on: Nov 27, 2020
  *      Author: juliusz
  */
 
-#ifndef LIB_GENERAL_H_
-#define LIB_GENERAL_H_
+#pragma once
 
 /* I2C addresses, already left-shifted */
 #define MCP_ADDRESS_1 0b01000000// Lights 1
@@ -17,5 +16,3 @@
 #define MAX11616_ADDRESS 0b01101010
 
 #define I2C_TIMEOUT 1
-
-#endif /* LIB_GENERAL_H_ */
