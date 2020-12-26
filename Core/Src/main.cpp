@@ -30,9 +30,9 @@
 /* USER CODE BEGIN Includes */
 #include <stdlib.h>
 #include <vector>
-#include <algorithm>
+#include <exception>
+#include <string>
 
-#include <../Lib/kontrolka.hpp>
 #include <../Lib/mcp23017.hpp>
 #include <../Lib/max11616.hpp>
 #include <../Lib/pins.hpp>
@@ -126,9 +126,22 @@ int main(void)
     /* USER CODE BEGIN 3 */
     PinMaster::get().reload_inputs();
     PinMaster::get().reload_outputs();
-    bool state = PinMaster::get().get_input(pins::SWITCH1);
-    uint8_t position = Dictator::get().switches[Dictator::Switches::SWITCH_6POS_1].get_position();
-    PinMaster::get().set_output(pins::LIGHT1, state);
+    uint8_t position = Dictator::get().switches.at(Dictator::SWITCH_2POS_1).get_position();
+    if (position == 2)
+    {
+      try
+      {
+        Dictator::get().leds.at(Dictator::LED_1).set_state(true);
+      }
+      catch (std::exception &e)
+      {
+        HAL_Delay(1);
+      }
+    }
+    else
+    {
+      Dictator::get().leds.at(Dictator::LED_1).set_state(false);
+    }
   }
   /* USER CODE END 3 */
 }

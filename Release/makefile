@@ -63,7 +63,7 @@ all: Panel.elf secondary-outputs
 
 # Tool invocations
 Panel.elf: $(OBJS) $(USER_OBJS) /home/juliusz/Documents/Workspace/KNR/Panel/STM32H743ZITX_FLASH.ld
-	arm-none-eabi-g++ -o "Panel.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"/home/juliusz/Documents/Workspace/KNR/Panel/STM32H743ZITX_FLASH.ld" -Wl,-Map="Panel.map" -Wl,--gc-sections -static -fexceptions  -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+	arm-none-eabi-g++ -o "Panel.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"/home/juliusz/Documents/Workspace/KNR/Panel/STM32H743ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Panel.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

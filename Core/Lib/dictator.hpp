@@ -14,6 +14,9 @@
 #pragma once
 
 #include "switch.hpp"
+#include "joystick.hpp"
+#include "potentiometer.hpp"
+#include "led.hpp"
 #include <vector>
 
 /* Singleton for controlling IO devices */
@@ -29,7 +32,22 @@ public:
         SWITCH_2POS_2,
         SWITCH_6POS_1,
     };
+    enum Joysticks // Must match order in Dictator constructor
+    {
+        JOYSTICK_1,
+    };
+    enum Potentiometers // Must match order in Dictator constructor
+    {
+        POTENTIOMETER_1,
+    };
+    enum Leds // Must match order in Dictator constructor
+    {
+        LED_1,
+    };
     std::vector<Switch> switches;
+    std::vector<Joystick> joysticks;
+    std::vector<Potentiometer> potentiometers;
+    std::vector<Led> leds;
 
 private:
     Dictator();
