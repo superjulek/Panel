@@ -7,10 +7,11 @@
 
 #pragma once
 
-#include "events.hpp"
+#include "event.hpp"
 
 #include <vector>
 #include <cstdint>
+#include <memory>
 
 class Scheduler
 {
@@ -28,7 +29,7 @@ public:
      * Add single event to queue
      * @param event     event to be added
      */
-    void add_to_queue(Event event);
+    void add_to_queue(std::shared_ptr<Event> &&event);
     /**
      * Add periodic event to queue
      * @param event     event to be added
@@ -42,5 +43,5 @@ public:
     void remove_periodic_event(Event event);
 
 private:
-    std::vector<void> queue;
+    std::vector<std::unique_ptr<Event>> queue;
 };

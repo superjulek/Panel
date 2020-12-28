@@ -32,12 +32,15 @@
 #include <vector>
 #include <exception>
 #include <string>
+#include <memory>
 
 #include <../Lib/mcp23017.hpp>
 #include <../Lib/max11616.hpp>
 #include <../Lib/pins.hpp>
 #include <../Lib/pin_master.hpp>
 #include <../Lib/dictator.hpp>
+#include <../Lib/scheduler.hpp>
+#include <../Lib/Events/events.hpp>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -114,7 +117,8 @@ int main(void)
       //HAL_Delay(10);
     }
   }
-
+  Scheduler scheduler;
+  scheduler.add_to_queue(std::move(std::make_unique<Events::FlashLight>()));
   /* USER CODE END 2 */
 
   /* Infinite loop */
