@@ -12,7 +12,7 @@ class Event
 public:
     Event();
     Event(Event &&other) noexcept;
-    void Execute();
+    virtual void Execute();
 
 private:
     bool test;

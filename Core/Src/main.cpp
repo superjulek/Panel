@@ -118,7 +118,8 @@ int main(void)
     }
   }
   Scheduler scheduler;
-  scheduler.add_to_queue(std::move(std::make_unique<Events::FlashLight>()));
+  scheduler.add_to_queue(std::make_unique<Events::FlashLight>());
+  scheduler.handle_events();
   /* USER CODE END 2 */
 
   /* Infinite loop */

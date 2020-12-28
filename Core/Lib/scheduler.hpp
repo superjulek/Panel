@@ -29,7 +29,7 @@ public:
      * Add single event to queue
      * @param event     event to be added
      */
-    void add_to_queue(std::shared_ptr<Event> &&event);
+    void add_to_queue(std::unique_ptr<Event> event);
     /**
      * Add periodic event to queue
      * @param event     event to be added

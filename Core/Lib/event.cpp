@@ -14,3 +14,8 @@ Event::Event()
 Event::Event(Event &&other) noexcept
 {
 }
+
+void Event::Execute()
+{
+    return;
+}
