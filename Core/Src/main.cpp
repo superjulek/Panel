@@ -39,8 +39,8 @@
 #include <../Lib/pins.hpp>
 #include <../Lib/pin_master.hpp>
 #include <../Lib/dictator.hpp>
-#include <../Lib/scheduler.hpp>
-#include <../Lib/Events/events.hpp>
+#include <../Lib/task_manager.hpp>
+#include <../Lib/Tasks/tasks.hpp>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -117,9 +117,8 @@ int main(void)
       //HAL_Delay(10);
     }
   }
-  Scheduler scheduler;
-  scheduler.add_to_queue(std::make_unique<Events::FlashLight>());
-  scheduler.handle_events();
+  TaskManager::get().add_to_queue(std::make_unique<Tasks::FlashLed>());
+  TaskManager::get().handle_tasks();
   /* USER CODE END 2 */
 
   /* Infinite loop */
