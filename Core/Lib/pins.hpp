@@ -23,16 +23,16 @@ namespace pins
     enum pins_DI
     {
         /* Standard switches */
-        SWITCH1,
-        SWITCH2,
-        SWITCH3,
-        SWITCH4,
-        SWITCH5,
-        SWITCH6,
-        SWITCH7,
-        SWITCH8,
-        SWITCH9,
-        SWITCH10,
+        SWITCH1,    // INTERRUPT
+        SWITCH2,    // INTERRUPT
+        SWITCH3,    // INTERRUPT
+        SWITCH4,    // INTERRUPT
+        SWITCH5,    // INTERRUPT
+        SWITCH6,    // INTERRUPT
+        SWITCH7,    // INTERRUPT
+        SWITCH8,    // INTERRUPT
+        SWITCH9,    // INTERRUPT
+        SWITCH10,   // INTERRUPT
         SWITCH11,
         SWITCH12,
         SWITCH13,

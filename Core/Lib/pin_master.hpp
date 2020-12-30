@@ -10,6 +10,7 @@
 #include <array>
 #include <vector>
 #include <cstdint>
+#include <functional>
 #include "pins.hpp"
 #include "general.hpp"
 #include "mcp23017.hpp"
@@ -42,6 +43,11 @@ union StateRes
 class PinMaster
 {
 public:
+    struct InterruptPinLatch
+    {
+        bool fired = false;
+        std::function<void()> fun = [=](){};
+    };
     PinMaster(const PinMaster &) = delete;
     /* Get instance of PinMaster */
     static PinMaster& get();
@@ -67,6 +73,21 @@ public:
      * @param GPIO_Pin  GPIO pin number for which interrupt occurred
      */
     void handle_interrupt(uint16_t GPIO_Pin); // TODO: implement
+    /**
+     * Clears interrupt latch 
+     */
+    void clear_interrupts();
+    /**
+     * Get interrupt latch
+     * @param pin       pin for which latch are we asking
+     */
+    InterruptPinLatch get_interrupt_latch(pins::pins_DI pin);
+    /**
+     * Set interrupt callback function
+     * @param pin       pin for callback function
+     * @param fun       function to execute on interrupt
+     */
+    void set_interrupt_callback(pins::pins_DI pin, std::function<void()> fun);
 
 private:
     PinMaster();
@@ -76,13 +97,8 @@ private:
     std::array<internal_pin, pins::SWITCH_4_D_5 - pins::SWITCH1 + 1> internal_DI_pins;
     std::array<external_pin, pins::SWITCH_12_L - pins::SWITCH_6_A_1 + 1> external_DI_pins;
     std::array<external_pin, pins::LIGHT32 - pins::LIGHT1 + 1> external_DO_pins;
+    std::array<InterruptPinLatch, pins::SWITCH10 + 1> interrupt_pins; // Switches 1 - 10 are interrupts
     uint32_t internal_AI_DMA_buffer[pins::POT8 - pins::POT1 + 1];
     std::array<MCP23017, 4> DI_DO_expanders;
     MAX11616 AI_expander;
-    struct InterruptPinLatch
-    {
-        pins::pins_DI pin;
-        bool fired = 0;
-    };
-    std::vector<InterruptPinLatch> interrupt_pins;
 };

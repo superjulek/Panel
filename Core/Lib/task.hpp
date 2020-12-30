@@ -13,6 +13,9 @@ namespace TasksTypes
     {
         UNIMPLEMENTED,
         FLASH_LED,
+        LOAD_INPUTS,
+        LOAD_OUTPUTS,
+        TEST_TASK,
     };
 } // namespace TasksTypes
 
@@ -23,7 +26,4 @@ public:
     Task(Task &&other) noexcept;
     virtual void execute();
     virtual TasksTypes::TaskType get_type();
-
-private:
-    bool test;
 };

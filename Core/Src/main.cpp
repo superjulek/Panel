@@ -29,6 +29,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdlib.h>
+#include <stdio.h>
 #include <vector>
 #include <exception>
 #include <string>
@@ -70,7 +71,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -110,15 +110,13 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-  for (int i = 0; i < 256; ++i)
-  {
-    if (HAL_I2C_IsDeviceReady(&hi2c2, i, 1, 2) == HAL_OK)
-    {
-      //HAL_Delay(10);
-    }
-  }
-  TaskManager::get().add_to_queue(std::make_unique<Tasks::FlashLed>());
-  TaskManager::get().handle_tasks();
+  TaskManager::get().add_periodic_task(std::make_shared<Tasks::FlashLed>(), 500);
+  HAL_Delay(10);
+  TaskManager::get().add_periodic_task(std::make_shared<Tasks::LoadInputs>(), 1000);
+  TaskManager::get().add_periodic_task(std::make_shared<Tasks::TestTask>(), 1000);
+  TaskManager::get().add_periodic_task(std::make_shared<Tasks::LoadOutputs>(), 1000);
+  PinMaster::get().set_interrupt_callback(pins::pins_DI::SWITCH5, []() { HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin); });
+  PinMaster::get().set_interrupt_callback(pins::pins_DI::SWITCH1, []() { HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin); });
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -128,23 +126,15 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    PinMaster::get().reload_inputs();
-    PinMaster::get().reload_outputs();
-    uint8_t position = Dictator::get().switches.at(Dictator::SWITCH_2POS_1).get_position();
-    if (position == 2)
+    try
     {
-      try
-      {
-        Dictator::get().leds.at(Dictator::LED_1).set_state(true);
-      }
-      catch (std::exception &e)
-      {
-        HAL_Delay(1);
-      }
+      TaskManager::get().handle_tasks();
     }
-    else
+    catch (std::exception &exc)
     {
-      Dictator::get().leds.at(Dictator::LED_1).set_state(false);
+      while (1)
+      {
+      }
     }
   }
   /* USER CODE END 3 */
@@ -232,6 +222,12 @@ extern "C" void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   PinMaster::get().handle_interrupt(GPIO_Pin);
 }
+
+extern "C" void HAL_SYSTICK_Callback()
+{
+  TaskManager::get().schedule_tasks();
+}
+
 /* USER CODE END 4 */
 
 /**
