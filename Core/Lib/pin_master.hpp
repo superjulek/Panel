@@ -79,4 +79,10 @@ private:
     uint32_t internal_AI_DMA_buffer[pins::POT8 - pins::POT1 + 1];
     std::array<MCP23017, 4> DI_DO_expanders;
     MAX11616 AI_expander;
+    struct InterruptPinLatch
+    {
+        pins::pins_DI pin;
+        bool fired = 0;
+    };
+    std::vector<InterruptPinLatch> interrupt_pins;
 };

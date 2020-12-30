@@ -191,6 +191,18 @@ PinMaster::PinMaster()
     external_DO_pins[pins::LIGHT31] = (external_pin){.exp_num = 2, .pin = MCP23017::MCP23017_pin::GPB6};
     external_DO_pins[pins::LIGHT32] = (external_pin){.exp_num = 2, .pin = MCP23017::MCP23017_pin::GPB7};
 
+    /* Asign interrupt pins */
+    interrupt_pins.push_back({pins::SWITCH1, false});
+    interrupt_pins.push_back({pins::SWITCH2, false});
+    interrupt_pins.push_back({pins::SWITCH3, false});
+    interrupt_pins.push_back({pins::SWITCH4, false});
+    interrupt_pins.push_back({pins::SWITCH5, false});
+    interrupt_pins.push_back({pins::SWITCH6, false});
+    interrupt_pins.push_back({pins::SWITCH7, false});
+    interrupt_pins.push_back({pins::SWITCH8, false});
+    interrupt_pins.push_back({pins::SWITCH9, false});
+    interrupt_pins.push_back({pins::SWITCH10, false});
+
     /* Start DMA readings from internal ADC */
     HAL_ADC_Start_DMA(&hadc1, internal_AI_DMA_buffer, pins::POT8 - pins::POT1 + 1);
 
@@ -210,6 +222,17 @@ void PinMaster::reload_inputs()
     for (int pin = pins::SWITCH1; pin <= pins::SWITCH_4_D_5; ++pin)
     {
         pins_DI_states[pin] = HAL_GPIO_ReadPin(internal_DI_pins[pin].port, internal_DI_pins[pin].pin);
+    }
+
+    /* Apply interrupt latch */
+    for (InterruptPinLatch &pin : interrupt_pins)
+    {
+        if (pin.fired)
+        {
+            pins_DI_states[pin.pin] = true;
+            /* Clear latch */
+            pin.fired = false;
+        }
     }
 
     /* Read external DI pins */
@@ -318,5 +341,11 @@ PinMaster &PinMaster::get()
 
 void PinMaster::handle_interrupt(uint16_t GPIO_Pin)
 {
-    return;
+    for (InterruptPinLatch &pin : interrupt_pins)
+    {
+        if (GPIO_Pin == internal_DI_pins[pin.pin].pin)
+        {
+            pin.fired = true;
+        }
+    }
 }
