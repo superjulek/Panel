@@ -37,11 +37,11 @@ public:
     void add_to_queue(std::unique_ptr<Task> task);
     /**
      * Add periodic task to queue
-     * @note            if task is already in scheduled, it will be
-     * @param task     task to be added
+     * @note            if task is already in scheduled, it will be replaced
+     * @param task      task to be added
      * @param period    period in ms between tasks
      */
-    void add_periodic_task(Task task, uint32_t period);
+    void add_periodic_task(std::shared_ptr<Task> task, uint32_t period);
     /**
      * Remove periodic task from queue
      * @param task     task to be removed
@@ -49,9 +49,16 @@ public:
     void remove_periodic_task(Task task);
 
 private:
+    /* Struct for scheduled event with period and remaining period. */
+    struct ScheduledTask
+    {
+        std::shared_ptr<Task> task;
+        uint32_t period;
+        uint32_t remaining_period;
+    };
     TaskManager();
     /* Queue of pending tasks */
     std::vector<std::unique_ptr<Task>> queue;
     /* Vector of events to be periodically scheduler TODO: Change to struct with time */
-    std::vector<std::shared_ptr<Task>> scheduler_vec;
+    std::vector<ScheduledTask> scheduled_vec;
 };
