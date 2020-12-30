@@ -62,7 +62,11 @@ public:
     bool get_input(const pins::pins_DI &pin);
     float get_input(const pins::pins_AI &pin);
     void set_output(const pins::pins_DO &pin, bool state);
-    void handle_interrupt(); // TODO: implement
+    /**
+     * Handle GPIO interrupts
+     * @param GPIO_Pin  GPIO pin number for which interrupt occurred
+     */
+    void handle_interrupt(uint16_t GPIO_Pin); // TODO: implement
 
 private:
     PinMaster();

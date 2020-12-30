@@ -228,7 +228,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+extern "C" void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  PinMaster::get().handle_interrupt(GPIO_Pin);
+}
 /* USER CODE END 4 */
 
 /**

@@ -315,3 +315,8 @@ PinMaster &PinMaster::get()
     static PinMaster instance;
     return instance;
 }
+
+void PinMaster::handle_interrupt(uint16_t GPIO_Pin)
+{
+    return;
+}
